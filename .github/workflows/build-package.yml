@@ -37,24 +37,40 @@ jobs:
           npm install
           npm run build
 
-      # (CHANGED) Assemble the app using our custom index.html
       - name: Assemble Zendesk App
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          # 1. Create the final directory structure
           mkdir -p build-output/assets/build
-
-          # 2. Copy the manifest and our new index.html from the template
           cp templates-repo/zendesk-template/manifest.json build-output/
           cp templates-repo/zendesk-template/index.html build-output/assets/
-
-          # 3. Copy ONLY the compiled JavaScript 'build' folder into assets
           cp -r widget-repo/universal-widget/www/build/* build-output/assets/build/
+
+      # --- START OF DEBUGGING STEPS ---
+      - name: Debug File Structure
+        if: ${{ github.event.inputs.platform == 'zendesk' }}
+        run: |
+          echo "--- Listing contents of build-output directory ---"
+          ls -R build-output
+
+      - name: Debug File Contents
+        if: ${{ github.event.inputs.platform == 'zendesk' }}
+        run: |
+          echo "--- Printing content of manifest.json ---"
+          cat build-output/manifest.json
+          echo "--- Printing content of assets/index.html ---"
+          cat build-output/assets/index.html
 
       - name: Zip the package
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
           (cd build-output && zip -r ../app.zip .)
+
+      - name: Inspect Final Zip Archive
+        if: ${{ github.event.inputs.platform == 'zendesk' }}
+        run: |
+          echo "--- Inspecting contents of final app.zip ---"
+          unzip -l app.zip
+      # --- END OF DEBUGGING STEPS ---
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
