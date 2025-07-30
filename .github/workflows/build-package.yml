@@ -37,40 +37,25 @@ jobs:
           npm install
           npm run build
 
+      # (CHANGED) Assemble the app with the newly discovered structure
       - name: Assemble Zendesk App
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          mkdir -p build-output/assets/build
-          cp templates-repo/zendesk-template/manifest.json build-output/
-          cp templates-repo/zendesk-template/index.html build-output/assets/
-          cp -r widget-repo/universal-widget/www/build/* build-output/assets/build/
+          # 1. Create the full required folder structure
+          mkdir -p build-output/app/assets/build
 
-      # --- START OF DEBUGGING STEPS ---
-      - name: Debug File Structure
-        if: ${{ github.event.inputs.platform == 'zendesk' }}
-        run: |
-          echo "--- Listing contents of build-output directory ---"
-          ls -R build-output
+          # 2. Copy manifest into the 'app' folder
+          cp templates-repo/zendesk-template/manifest.json build-output/app/
 
-      - name: Debug File Contents
-        if: ${{ github.event.inputs.platform == 'zendesk' }}
-        run: |
-          echo "--- Printing content of manifest.json ---"
-          cat build-output/manifest.json
-          echo "--- Printing content of assets/index.html ---"
-          cat build-output/assets/index.html
+          # 3. Copy index.html AND the compiled JS into the final 'build' subfolder
+          cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
+          cp -r widget-repo/universal-widget/www/build/* build-output/app/assets/build/
 
+      # (CHANGED) Zip the contents of the 'app' subfolder
       - name: Zip the package
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          (cd build-output && zip -r ../app.zip .)
-
-      - name: Inspect Final Zip Archive
-        if: ${{ github.event.inputs.platform == 'zendesk' }}
-        run: |
-          echo "--- Inspecting contents of final app.zip ---"
-          unzip -l app.zip
-      # --- END OF DEBUGGING STEPS ---
+          (cd build-output/app && zip -r ../../app.zip .)
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
