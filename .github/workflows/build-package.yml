@@ -31,27 +31,22 @@ jobs:
         with:
           node-version: '18'
 
+      # (CHANGED) Run a production build
       - name: Build Universal Widget
         run: |
           cd widget-repo/universal-widget
           npm install
-          npm run build
+          # Use the --prod flag to create a bundled, production-ready output
+          npm run build -- --prod
 
-      # (CHANGED) Assemble the app with the newly discovered structure
       - name: Assemble Zendesk App
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          # 1. Create the full required folder structure
           mkdir -p build-output/app/assets/build
-
-          # 2. Copy manifest into the 'app' folder
           cp templates-repo/zendesk-template/manifest.json build-output/app/
-
-          # 3. Copy index.html AND the compiled JS into the final 'build' subfolder
           cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
           cp -r widget-repo/universal-widget/www/build/* build-output/app/assets/build/
 
-      # (CHANGED) Zip the contents of the 'app' subfolder
       - name: Zip the package
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
