@@ -37,30 +37,27 @@ jobs:
       # Step 4: Build your Stencil.js widget
       - name: Build Universal Widget
         run: |
-          # Go into the subfolder that contains package.json
           cd widget-repo/universal-widget
           npm install
           npm run build
 
-      # Step 5: Assemble the Zendesk package
+      # Step 5: Assemble the Zendesk package (NEW, MORE ROBUST LOGIC)
       - name: Assemble Zendesk App
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          # 1. Create the necessary folder structure first
-          mkdir -p build-output/assets
-
-          # 2. Copy the manifest file to the root of the build folder
+          # Create the final output directory
+          mkdir -p build-output
+          # Move the entire compiled widget output and rename it to 'assets'
+          mv widget-repo/universal-widget/www build-output/assets
+          # Copy the manifest file to the root of the build directory
           cp templates-repo/zendesk-template/manifest.json build-output/
 
-          # 3. Copy the compiled widget into the new assets folder
-          cp -r widget-repo/universal-widget/www/* build-output/assets/
-
-      # Step 6: Zip the final package (CHANGED)
+      # Step 6: Zip the final package (NEW, MORE ROBUST LOGIC)
       - name: Zip the package
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          cd build-output
-          zip -r ../app.zip *
+          # Use a subshell to cd and zip, which is a very safe pattern
+          (cd build-output && zip -r ../app.zip .)
 
       # Step 7: Upload the app.zip as a downloadable artifact
       - name: Upload Artifact
