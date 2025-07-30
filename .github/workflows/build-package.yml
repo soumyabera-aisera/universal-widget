@@ -53,7 +53,7 @@ jobs:
           cp templates-repo/zendesk-template/manifest.json build-output/
 
           # 3. Copy the compiled widget into the new assets folder
-          cp -r widget-repo/widget/www/* build-output/assets/
+          cp -r widget-repo/universal-widget/www/* build-output/assets/
 
       # Step 6: Zip the final package
       - name: Zip the package
