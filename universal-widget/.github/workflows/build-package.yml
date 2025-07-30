@@ -1,0 +1,67 @@
+# .github/workflows/build-package.yml
+
+name: Build Widget Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build for (e.g., zendesk)'
+        required: true
+        default: 'zendesk'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out your universal widget's code
+      - name: Checkout Widget Repo
+        uses: actions/checkout@v4
+        with:
+          path: widget-repo
+
+      # Step 2: Check out your templates repository
+      - name: Checkout Templates Repo
+        uses: actions/checkout@v4
+        with:
+          repository: soumyabera-aisera/widget-templates
+          path: templates-repo
+
+      # Step 3: Setup Node.js to build your widget
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Step 4: Build your Stencil.js widget (CHANGED)
+      - name: Build Universal Widget
+        run: |
+          # Go into the subfolder that contains package.json
+          cd widget-repo/universal-widget
+          npm install
+          npm run build
+
+      # Step 5: Assemble the Zendesk package (CHANGED)
+      - name: Assemble Zendesk App
+        if: ${{ github.event.inputs.platform == 'zendesk' }}
+        run: |
+          # 1. Copy the Zendesk template to a new build folder
+          cp -r templates-repo/zendesk-template build-output
+
+          # 2. Copy from the correct build output folder (widget/www)
+          cp -r widget-repo/universal-widget/www/* build-output/assets/
+
+      # Step 6: Zip the final package
+      - name: Zip the package
+        if: ${{ github.event.inputs.platform == 'zendesk' }}
+        run: |
+          cd build-output
+          zip -r ../app.zip .
+
+      # Step 7: Upload the app.zip as a downloadable artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zendesk-app
+          path: app.zip
