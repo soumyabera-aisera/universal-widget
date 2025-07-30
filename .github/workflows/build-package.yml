@@ -31,13 +31,13 @@ jobs:
         with:
           node-version: '18'
 
-      # (CHANGED) Run a production build
+      # (CHANGED) Use npx for a direct and reliable production build
       - name: Build Universal Widget
         run: |
           cd widget-repo/universal-widget
           npm install
-          # Use the --prod flag to create a bundled, production-ready output
-          npm run build -- --prod
+          # Use npx to directly call the stencil compiler with the --prod flag
+          npx stencil build --prod
 
       - name: Assemble Zendesk App
         if: ${{ github.event.inputs.platform == 'zendesk' }}
