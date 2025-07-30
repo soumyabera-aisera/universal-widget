@@ -46,11 +46,14 @@ jobs:
       - name: Assemble Zendesk App
         if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
-          # 1. Copy the Zendesk template to a new build folder
-          cp -r templates-repo/zendesk-template build-output
+          # 1. Create the necessary folder structure first
+          mkdir -p build-output/assets
 
-          # 2. Copy from the correct build output folder (widget/www)
-          cp -r widget-repo/universal-widget/www/* build-output/assets/
+          # 2. Copy the manifest file to the root of the build folder
+          cp templates-repo/zendesk-template/manifest.json build-output/
+
+          # 3. Copy the compiled widget into the new assets folder
+          cp -r widget-repo/widget/www/* build-output/assets/
 
       # Step 6: Zip the final package
       - name: Zip the package
