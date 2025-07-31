@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x' # Updated to a version compatible with ZCLI
+          node-version: '20.x'
 
       - name: Build Universal Widget
         run: |
@@ -37,10 +37,10 @@ jobs:
 
       - name: Assemble App for Packaging
         run: |
-          # 1. Create a clean directory for the final app package
+          # 1. Create the required nested directory structure
           mkdir -p ./app_dist/assets/build
 
-          # 2. Copy the manifest and translations to the app root
+          # 2. Copy manifest and translations to the app root
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
           cp -r ./templates-repo/zendesk-template/translations ./app_dist/
 
@@ -48,8 +48,8 @@ jobs:
           cp ./templates-repo/zendesk-template/assets/logo.png ./app_dist/assets/
           cp ./templates-repo/zendesk-template/assets/logo-small.png ./app_dist/assets/
 
-          # 4. Copy the HTML shell into the 'build' subfolder
-          cp ./templates-repo/zendesk-template/assets/index.html ./app_dist/assets/build/
+          # 4. Copy the HTML shell from the correct location into the 'build' subfolder
+          cp ./templates-repo/zendesk-template/index.html ./app_dist/assets/build/
 
           # 5. Copy the compiled widget code into the 'build' subfolder alongside the HTML
           cp -r ./widget-repo/universal-widget/dist/* ./app_dist/assets/build/
