@@ -44,11 +44,15 @@ jobs:
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
           cp -r ./templates-repo/zendesk-template/translations ./app_dist/
 
-          # 3. Copy all template assets (logos, index.html) into the assets folder
-          cp -r ./templates-repo/zendesk-template/assets/* ./app_dist/assets/
+          # 3. Copy logos to the main assets folder
+          cp ./templates-repo/zendesk-template/assets/logo.png ./app_dist/assets/
+          cp ./templates-repo/zendesk-template/assets/logo-small.png ./app_dist/assets/
 
-          # 4. Copy the compiled widget code into the assets folder
-          cp -r ./widget-repo/universal-widget/dist/* ./app_dist/assets/build
+          # 4. Copy the HTML shell into the 'build' subfolder
+          cp ./templates-repo/zendesk-template/assets/index.html ./app_dist/assets/build/
+
+          # 5. Copy the compiled widget code into the 'build' subfolder alongside the HTML
+          cp -r ./widget-repo/universal-widget/dist/* ./app_dist/assets/build/
 
       - name: Install ZCLI
         run: npm install @zendesk/zcli -g
