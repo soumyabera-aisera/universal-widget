@@ -1,5 +1,3 @@
-# .github/workflows/build-package.yml
-
 name: Build Widget Package
 
 on:
@@ -35,26 +33,23 @@ jobs:
         run: |
           cd widget-repo/universal-widget
           npm install
-          npx stencil build --prod
+          # We no longer need the --prod flag as the config forces the right output
+          npx stencil build
 
-      # (CHANGED) Assemble the app using the correct 'dist' production output
       - name: Assemble Zendesk App
-        if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
           # 1. Create the final directory structure
-          mkdir -p build-output/app/assets/dist
+          mkdir -p build-output/app/assets/build
 
-          # 2. Copy manifest into the 'app' folder
+          # 2. Copy manifest and index.html from templates
           cp templates-repo/zendesk-template/manifest.json build-output/app/
-
-          # 3. Copy index.html into the 'assets' folder
           cp templates-repo/zendesk-template/index.html build-output/app/assets/
 
-          # 4. Copy the entire 'dist' folder (production output) into assets
-          cp -r widget-repo/universal-widget/dist/* build-output/app/assets/dist/
+          # 3. Copy the single, bundled JS file into the 'build' folder
+          # The output is now in the 'dist' folder, not 'dist/components'
+          cp widget-repo/universal-widget/dist/universal-widget.js build-output/app/assets/build/
 
       - name: Zip the package
-        if: ${{ github.event.inputs.platform == 'zendesk' }}
         run: |
           (cd build-output/app && zip -r ../../app.zip .)
 
