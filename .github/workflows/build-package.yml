@@ -54,10 +54,14 @@ jobs:
         run: npm install @zendesk/zcli -g
 
       - name: Package Zendesk App with ZCLI
+        env:
+          ZENDESK_SUBDOMAIN: ${{ secrets.ZENDESK_SUBDOMAIN }}
+          ZENDESK_EMAIL: ${{ secrets.ZENDESK_EMAIL }}
+          ZENDESK_API_TOKEN: ${{ secrets.ZENDESK_API_TOKEN }}
         run: zcli apps:package ./app_dist
 
       - name: Upload Zendesk App Artifact
         uses: actions/upload-artifact@v4
         with:
           name: zendesk-app-package
-          path: ./app_dist/tmp/*.zip # Correct path for ZCLI output
+          path: ./app_dist/tmp/*.zip
