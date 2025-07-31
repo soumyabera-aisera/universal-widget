@@ -51,9 +51,6 @@ jobs:
 
           # 4. Copy index.html into the 'app/assets/build' folder
           cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
-          
-          # 5. Copy the compiled JS file into the 'app/assets/build' folder
-          cp widget-repo/universal-widget/dist/components/aisera-universal-widget.js build-output/app/assets/build/
 
       - name: Zip the package
         run: |
