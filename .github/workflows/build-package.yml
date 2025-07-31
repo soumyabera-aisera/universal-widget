@@ -35,18 +35,14 @@ jobs:
           npm install
           npx stencil build
 
-      # (NEW) Debug the output of the build command
-      - name: Debug Build Output
-        run: |
-          echo "--- Listing contents of dist directory ---"
-          ls -R widget-repo/universal-widget/dist
-
+      # (CHANGED) Assemble the app using the correct file path
       - name: Assemble Zendesk App
         run: |
           mkdir -p build-output/app/assets/build
           cp templates-repo/zendesk-template/manifest.json build-output/app/
           cp templates-repo/zendesk-template/index.html build-output/app/assets/
-          cp widget-repo/universal-widget/dist/universal-widget.js build-output/app/assets/build/
+          # This is the corrected path to the final JS file
+          cp widget-repo/universal-widget/dist/components/aisera-universal-widget.js build-output/app/assets/build/
 
       - name: Zip the package
         run: |
