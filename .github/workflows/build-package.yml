@@ -54,6 +54,12 @@ jobs:
           # 5. Copy the compiled widget code into the 'build' subfolder alongside the HTML
           cp -r ./widget-repo/universal-widget/dist/* ./app_dist/assets/build/
 
+          # 6. Clean the package by removing development-only files
+          echo "Cleaning non-production files from package..."
+          find ./app_dist -name "*.d.ts" -print -delete
+          find ./app_dist -name "*.js.map" -print -delete
+          echo "Cleanup complete."
+
       - name: Install ZCLI
         run: npm install @zendesk/zcli -g
 
