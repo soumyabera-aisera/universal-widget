@@ -29,23 +29,26 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Build Universal Widget
-        run: |
-          cd widget-repo/universal-widget
-          npm install
-          npx stencil build
+      # NOTE: The build step is now commented out as we are testing with an empty index.html
+      # - name: Build Universal Widget
+      #   run: |
+      #     cd widget-repo/universal-widget
+      #     npm install
+      #     npx stencil build
 
-      # (CHANGED) Assemble the app WITHOUT the JavaScript file for testing
       - name: Assemble Zendesk App
         run: |
-          mkdir -p build-output/app/assets/build
+          # 1. Create the final directory structure
+          mkdir -p build-output/app/assets
+
+          # 2. Copy manifest, translations, and assets from template
           cp templates-repo/zendesk-template/manifest.json build-output/app/
-          cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
-          # The following line is commented out to exclude the JS file from the package
-          # cp widget-repo/universal-widget/dist/components/aisera-universal-widget.js build-output/app/assets/build/
+          cp -r templates-repo/zendesk-template/translations build-output/app/
+          cp -r templates-repo/zendesk-template/assets/* build-output/app/assets/
 
       - name: Zip the package
         run: |
+          # Zip the contents of the 'app' folder to create a clean root
           (cd build-output/app && zip -r ../../app.zip .)
 
       - name: Upload Artifact
