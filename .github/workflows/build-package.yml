@@ -38,7 +38,7 @@ jobs:
       - name: Assemble App for Packaging
         run: |
           # 1. Create a clean directory for the final app package
-          mkdir -p ./app_dist/assets
+          mkdir -p ./app_dist/assets/build
 
           # 2. Copy the manifest and translations to the app root
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
@@ -48,7 +48,7 @@ jobs:
           cp -r ./templates-repo/zendesk-template/assets/* ./app_dist/assets/
 
           # 4. Copy the compiled widget code into the assets folder
-          cp -r ./widget-repo/universal-widget/dist/* ./app_dist/assets/
+          cp -r ./widget-repo/universal-widget/dist/* ./app_dist/assets/build
 
       - name: Install ZCLI
         run: npm install @zendesk/zcli -g
