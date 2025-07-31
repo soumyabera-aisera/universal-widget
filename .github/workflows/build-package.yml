@@ -29,22 +29,31 @@ jobs:
         with:
           node-version: '18'
 
-      # NOTE: The build step is now commented out as we are testing with an empty index.html
-      # - name: Build Universal Widget
-      #   run: |
-      #     cd widget-repo/universal-widget
-      #     npm install
-      #     npx stencil build
+      - name: Build Universal Widget
+        run: |
+          cd widget-repo/universal-widget
+          npm install
+          npx stencil build
 
+      # (CHANGED) Assemble the app with the exact required folder structure
       - name: Assemble Zendesk App
         run: |
-          # 1. Create the final directory structure
-          mkdir -p build-output/app/assets
+          # 1. Create the full, nested directory structure
+          mkdir -p build-output/app/assets/build
 
-          # 2. Copy manifest, translations, and assets from template
+          # 2. Copy manifest and translations to the 'app' root
           cp templates-repo/zendesk-template/manifest.json build-output/app/
           cp -r templates-repo/zendesk-template/translations build-output/app/
-          cp -r templates-repo/zendesk-template/assets/* build-output/app/assets/
+
+          # 3. Copy logos to the 'app/assets' folder
+          cp templates-repo/zendesk-template/assets/logo.png build-output/app/assets/
+          cp templates-repo/zendesk-template/assets/logo-small.png build-output/app/assets/
+
+          # 4. Copy index.html into the 'app/assets/build' folder
+          cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
+          
+          # 5. Copy the compiled JS file into the 'app/assets/build' folder
+          cp widget-repo/universal-widget/dist/components/aisera-universal-widget.js build-output/app/assets/build/
 
       - name: Zip the package
         run: |
