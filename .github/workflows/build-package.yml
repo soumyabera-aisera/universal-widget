@@ -35,23 +35,17 @@ jobs:
           npm install
           npx stencil build
 
+      # (CHANGED) Assemble the app WITHOUT the JavaScript file for testing
       - name: Assemble Zendesk App
         run: |
-          # 1. Create the final directory structure based on the working example
           mkdir -p build-output/app/assets/build
-
-          # 2. Copy manifest into the 'app' folder
           cp templates-repo/zendesk-template/manifest.json build-output/app/
-
-          # 3. Copy our custom index.html into the 'app/assets/build' folder
           cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
-
-          # 4. Copy the component's JS file from the correct debugged path
-          cp widget-repo/universal-widget/dist/components/aisera-universal-widget.js build-output/app/assets/build/
+          # The following line is commented out to exclude the JS file from the package
+          # cp widget-repo/universal-widget/dist/components/aisera-universal-widget.js build-output/app/assets/build/
 
       - name: Zip the package
         run: |
-          # Zip the contents of the 'app' folder to create a clean root
           (cd build-output/app && zip -r ../../app.zip .)
 
       - name: Upload Artifact
