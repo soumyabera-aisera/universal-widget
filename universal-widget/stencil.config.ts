@@ -5,7 +5,6 @@ export const config: Config = {
   outputTargets: [
     {
       type: 'dist-custom-elements',
-      customElementsExportBehavior: 'single-export-module',
     },
   ],
 };
