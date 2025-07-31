@@ -33,20 +33,19 @@ jobs:
         run: |
           cd widget-repo/universal-widget
           npm install
-          # We no longer need the --prod flag as the config forces the right output
           npx stencil build
+
+      # (NEW) Debug the output of the build command
+      - name: Debug Build Output
+        run: |
+          echo "--- Listing contents of dist directory ---"
+          ls -R widget-repo/universal-widget/dist
 
       - name: Assemble Zendesk App
         run: |
-          # 1. Create the final directory structure
           mkdir -p build-output/app/assets/build
-
-          # 2. Copy manifest and index.html from templates
           cp templates-repo/zendesk-template/manifest.json build-output/app/
           cp templates-repo/zendesk-template/index.html build-output/app/assets/
-
-          # 3. Copy the single, bundled JS file into the 'build' folder
-          # The output is now in the 'dist' folder, not 'dist/components'
           cp widget-repo/universal-widget/dist/universal-widget.js build-output/app/assets/build/
 
       - name: Zip the package
