@@ -1,4 +1,4 @@
-name: Build Widget Package
+name: Build and Package Zendesk App
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: 'zendesk'
 
 jobs:
-  build:
+  build-and-package-zendesk:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20.x' # Updated to a version compatible with ZCLI [1]
 
       - name: Build Universal Widget
         run: |
@@ -35,30 +35,29 @@ jobs:
           npm install
           npx stencil build
 
-      # (CHANGED) Assemble the app with the exact required folder structure
-      - name: Assemble Zendesk App
+      - name: Assemble App for Packaging
         run: |
-          # 1. Create the full, nested directory structure
-          mkdir -p build-output/app/assets/build
+          # 1. Create a clean directory for the final app package
+          mkdir -p./app_dist/assets
 
-          # 2. Copy manifest and translations to the 'app' root
-          cp templates-repo/zendesk-template/manifest.json build-output/app/
-          cp -r templates-repo/zendesk-template/translations build-output/app/
+          # 2. Copy the manifest and translations to the app root
+          cp./templates-repo/zendesk-template/manifest.json./app_dist/
+          cp -r./templates-repo/zendesk-template/translations./app_dist/
+          
+          # 3. Copy all template assets (logos, index.html) into the assets folder
+          cp -r./templates-repo/zendesk-template/assets/*./app_dist/assets/
 
-          # 3. Copy logos to the 'app/assets' folder
-          cp templates-repo/zendesk-template/assets/logo.png build-output/app/assets/
-          cp templates-repo/zendesk-template/assets/logo-small.png build-output/app/assets/
+          # 4. Copy the compiled widget code into the assets folder
+          cp -r./widget-repo/universal-widget/dist/*./app_dist/assets/
 
-          # 4. Copy index.html into the 'app/assets/build' folder
-          cp templates-repo/zendesk-template/index.html build-output/app/assets/build/
+      - name: Install ZCLI
+        run: npm install @zendesk/zcli -g [1]
 
-      - name: Zip the package
-        run: |
-          # Zip the contents of the 'app' folder to create a clean root
-          (cd build-output/app && zip -r ../../app.zip .)
+      - name: Package Zendesk App with ZCLI
+        run: zcli apps:package./app_dist [1]
 
-      - name: Upload Artifact
+      - name: Upload Zendesk App Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zendesk-app
-          path: app.zip
+          name: zendesk-app-package
+          path: ./app_dist/tmp/*.zip # Correct path for ZCLI output [1]
