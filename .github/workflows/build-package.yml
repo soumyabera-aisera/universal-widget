@@ -39,7 +39,7 @@ jobs:
       - name: Assemble App for Deployment
         run: |
           # 1. Create the required nested directory structure
-          mkdir -p./app_dist/assets/build
+          mkdir -p ./app_dist/assets/build
 
           # 2. Copy manifest, translations, and zcli config to the app root
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
