@@ -1,4 +1,4 @@
-name: Build and Package Zendesk App
+name: Build and Deploy Zendesk App
 
 on:
   workflow_dispatch:
@@ -9,14 +9,10 @@ on:
         default: 'zendesk'
 
 jobs:
-  build-and-package-zendesk:
+  build-and-deploy-zendesk:
     runs-on: ubuntu-latest
 
     steps:
-      # NEW: Force git to use LF line endings to prevent CRLF issues from the runner
-      - name: Set git to use LF line endings
-        run: git config --global core.autocrlf false
-
       - name: Checkout Widget Repo
         uses: actions/checkout@v4
         with:
@@ -40,14 +36,15 @@ jobs:
           # Use the --prod flag for the cleanest possible production build
           npx stencil build --prod
 
-      - name: Assemble and Clean App for Packaging
+      - name: Assemble App for Deployment
         run: |
           # 1. Create the required nested directory structure
-          mkdir -p ./app_dist/assets/build
+          mkdir -p./app_dist/assets/build
 
-          # 2. Copy manifest and translations to the app root
+          # 2. Copy manifest, translations, and zcli config to the app root
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
           cp -r ./templates-repo/zendesk-template/translations ./app_dist/
+          cp ./templates-repo/zendesk-template/zcli.apps.config.json ./app_dist/
 
           # 3. Copy logos to the main assets folder
           cp ./templates-repo/zendesk-template/assets/logo.png ./app_dist/assets/
@@ -56,22 +53,23 @@ jobs:
           # 4. Copy the HTML shell into the 'build' subfolder
           cp ./templates-repo/zendesk-template/index.html ./app_dist/assets/build/
 
-          # 5. Copy the NEW, simplified widget code into the 'build' subfolder
-          # This path now points to the clean output of 'dist-custom-elements'
+          # 5. Copy the simplified widget code into the 'build' subfolder
+          # This path points to the clean output of 'dist-custom-elements'
           cp -r ./widget-repo/universal-widget/dist/components/* ./app_dist/assets/build/
 
       - name: Install ZCLI
         run: npm install @zendesk/zcli -g
 
-      - name: Package Zendesk App with ZCLI
+      - name: Validate, Package, and Deploy to Zendesk
         env:
           ZENDESK_SUBDOMAIN: ${{ secrets.ZENDESK_SUBDOMAIN }}
           ZENDESK_EMAIL: ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_API_TOKEN: ${{ secrets.ZENDESK_API_TOKEN }}
-        run: zcli apps:package ./app_dist
+        run: zcli apps:update./app_dist
 
       - name: Upload Zendesk App Artifact
         uses: actions/upload-artifact@v4
         with:
           name: zendesk-app-package
-          path: ./app_dist/tmp/*.zip
+          # The 'update' command creates the package in a 'tmp' directory at the execution root before uploading [1]
+          path: ./tmp/*.zip
