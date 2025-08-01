@@ -24,15 +24,15 @@ jobs:
           # 1. Create a clean app directory
           mkdir -p ./app_dist/assets
 
-          # 2. Copy ONLY the essential files for a basic Zendesk app
+          # 2. Copy the essential files for a basic Zendesk app
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
           cp -r ./templates-repo/zendesk-template/translations ./app_dist/
           cp ./templates-repo/zendesk-template/assets/logo.png ./app_dist/assets/
           cp ./templates-repo/zendesk-template/assets/logo-small.png ./app_dist/assets/
-
-          # 3. Copy our guaranteed-to-work index.html into the assets folder
-          # NOTE: The manifest must point to "assets/index.html" for this to work
           cp ./templates-repo/zendesk-template/index.html ./app_dist/assets/
+
+          # 3. (FIX) Copy the ZCLI config file containing the app_id
+          cp ./templates-repo/zendesk-template/zcli.apps.config.json ./app_dist/
 
       - name: Install ZCLI
         run: npm install @zendesk/zcli -g
