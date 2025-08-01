@@ -13,49 +13,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Widget Repo
-        uses: actions/checkout@v4
-        with:
-          path: widget-repo
-
       - name: Checkout Templates Repo
         uses: actions/checkout@v4
         with:
           repository: soumyabera-aisera/widget-templates
           path: templates-repo
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-
-      - name: Build Universal Widget
+      - name: Assemble Minimal App for Deployment
         run: |
-          cd widget-repo/universal-widget
-          npm install
-          # Use the --prod flag for the cleanest possible production build
-          npx stencil build --prod
+          # 1. Create a clean app directory
+          mkdir -p ./app_dist/assets
 
-      - name: Assemble App for Deployment
-        run: |
-          # 1. Create the required nested directory structure
-          mkdir -p ./app_dist/assets/build
-
-          # 2. Copy manifest, translations, and zcli config to the app root
+          # 2. Copy ONLY the essential files for a basic Zendesk app
           cp ./templates-repo/zendesk-template/manifest.json ./app_dist/
           cp -r ./templates-repo/zendesk-template/translations ./app_dist/
-          cp ./templates-repo/zendesk-template/zcli.apps.config.json ./app_dist/
-
-          # 3. Copy logos to the main assets folder
           cp ./templates-repo/zendesk-template/assets/logo.png ./app_dist/assets/
           cp ./templates-repo/zendesk-template/assets/logo-small.png ./app_dist/assets/
 
-          # 4. Copy the HTML shell into the 'build' subfolder
-          cp ./templates-repo/zendesk-template/index.html ./app_dist/assets/build/
-
-          # 5. Copy the simplified widget code into the 'build' subfolder
-          # This path points to the clean output of 'dist-custom-elements'
-          cp -r ./widget-repo/universal-widget/dist/components/* ./app_dist/assets/build/
+          # 3. Copy our guaranteed-to-work index.html into the assets folder
+          # NOTE: The manifest must point to "assets/index.html" for this to work
+          cp ./templates-repo/zendesk-template/index.html ./app_dist/assets/
 
       - name: Install ZCLI
         run: npm install @zendesk/zcli -g
@@ -65,11 +42,4 @@ jobs:
           ZENDESK_SUBDOMAIN: ${{ secrets.ZENDESK_SUBDOMAIN }}
           ZENDESK_EMAIL: ${{ secrets.ZENDESK_EMAIL }}
           ZENDESK_API_TOKEN: ${{ secrets.ZENDESK_API_TOKEN }}
-        run: zcli apps:update./app_dist
-
-      - name: Upload Zendesk App Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: zendesk-app-package
-          # The 'update' command creates the package in a 'tmp' directory at the execution root before uploading [1]
-          path: ./tmp/*.zip
+        run: zcli apps:update ./app_dist
